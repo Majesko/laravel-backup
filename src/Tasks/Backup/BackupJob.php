@@ -3,6 +3,7 @@
 namespace Spatie\Backup\Tasks\Backup;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Spatie\Backup\BackupDestination\Backup;
 use Spatie\Backup\BackupDestination\BackupDestination;
 use Spatie\Backup\Events\BackupHasFailed;
@@ -29,6 +30,9 @@ class BackupJob
 
     /** @var string */
     protected $filename;
+
+    /** @var  array */
+    protected $databases;
 
     public function __construct()
     {
@@ -195,6 +199,7 @@ class BackupJob
             consoleOutput()->info("Dumping database {$dbDumper->getDbName()}...");
 
             $fileName = $dbDumper->getDbName().'.sql';
+            $this->databases[] = $dbDumper->getDbName();
             $temporaryFile = $this->temporaryDirectory->getPath($fileName);
             $dbDumper->dumpToFile($temporaryFile);
 
@@ -219,11 +224,11 @@ class BackupJob
 
                 consoleOutput()->info("Successfully copied .zip file to disk named {$backupDestination->getDiskName()}.");
 
-                event(new BackupWasSuccessful($backupDestination));
+                event(new BackupWasSuccessful($backupDestination, $this->databases));
             } catch (Exception $exception) {
                 consoleOutput()->error("Copying .zip file failed because: {$exception->getMessage()}.");
 
-                event(new BackupHasFailed($exception));
+                event(new BackupHasFailed($exception, $backupDestination, $this->databases));
             }
         });
     }

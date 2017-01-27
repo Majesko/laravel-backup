@@ -24,9 +24,9 @@ class EventHandler
         $this->notifier = app($notifierClass);
     }
 
-    public function whenBackupWasSuccessful()
+    public function whenBackupWasSuccessful(BackupWasSuccessful $event)
     {
-        $this->notifier->backupWasSuccessful();
+        $this->notifier->backupWasSuccessful($event->backupDestination, $event->databases);
     }
 
     /**
@@ -34,7 +34,7 @@ class EventHandler
      */
     public function whenBackupHasFailed(BackupHasFailed $event)
     {
-        $this->notifier->backupHasFailed($event->exception, $event->backupDestination);
+        $this->notifier->backupHasFailed($event->exception, $event->backupDestination, $event->databases);
     }
 
     /**
