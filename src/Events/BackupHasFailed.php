@@ -17,7 +17,7 @@ class BackupHasFailed
      * @param \Exception                                              $exception
      * @param \Spatie\Backup\BackupDestination\BackupDestination|null $backupDestination
      */
-    public function __construct(Exception $exception, BackupDestination $backupDestination = null)
+    public function __construct(Exception $exception, BackupDestination $backupDestination = null, $databases = null)
     {
         $this->exception = $exception;
         $this->backupDestination = $backupDestination;

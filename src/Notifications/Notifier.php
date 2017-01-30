@@ -25,24 +25,24 @@ class Notifier
         $this->subject = config('laravel-backup.backup.name').' backups';
     }
 
-    public function backupWasSuccessful()
+    public function backupWasSuccessful(BackupDestination $backupDestination, $databases = null)
     {
         $this->sendNotification(
             'whenBackupWasSuccessful',
             $this->subject,
-            'Successfully took a new backup',
+            "Successfully took a new backup, db:" . implode(' ', $databases)
+            . ", target: " . $backupDestination->getFilesystemType(),
             BaseSender::TYPE_SUCCESS
         );
     }
 
-    public function backupHasFailed(Exception $exception, BackupDestination $backupDestination = null)
+    public function backupHasFailed(Exception $exception, BackupDestination $backupDestination = null, $databases = null)
     {
-        $extraMessage = $backupDestination ? "to {$backupDestination->getFilesystemType()}-filesystem" : '';
-
         $this->sendNotification(
             'whenBackupHasFailed',
             "{$this->subject} : error",
-            "Failed to backup {$extraMessage} because: {$exception->getMessage()}",
+            "Failed to backup db: ". implode(' ', $databases)
+            . ", target: ". $backupDestination->getFilesystemType(),
             BaseSender::TYPE_ERROR
         );
     }
